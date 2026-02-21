@@ -1,6 +1,19 @@
 # MLX Whisper - Быстрая голосовая диктовка для macOS
 
+**Версия:** 1.0 (Стабильная)
+**Commit SHA:** `4559ad66d68331feea63aa07b40c488445adb7ec`
+
 Минималистичная утилита для транскрибации речи в текст на macOS с использованием MLX и Whisper. Работает локально на Apple Silicon без отправки данных в облако.
+
+## Установка стабильной версии
+
+```bash
+# Клонировать конкретную стабильную версию 1.0
+git clone https://github.com/maxim-malikov/huyulie.git ~/mlxwhisper
+cd ~/mlxwhisper
+git checkout 4559ad66d68331feea63aa07b40c488445adb7ec
+./install.sh
+```
 
 ## Что это?
 
@@ -166,6 +179,21 @@ python -c "import mlx_whisper; mlx_whisper.load_model('mlx-community/whisper-lar
 - `hammerspoon/init.lua` — конфигурация горячих клавиш
 
 Подробная документация в [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+## Версии
+
+### v1.0 (Текущая стабильная)
+- Полная функциональность диктовки
+- Автоматическая установка через `install.sh`
+- Интеграция с Hammerspoon
+- Поддержка BlackHole (в `audio-driver-integration/`)
+
+Для возврата к стабильной версии:
+```bash
+git checkout 4559ad66d68331feea63aa07b40c488445adb7ec
+# или
+git checkout v1.0
+```
 
 ## Лицензия
 
