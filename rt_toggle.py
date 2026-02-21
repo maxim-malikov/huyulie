@@ -124,7 +124,16 @@ def transcribe(audio_array, language=None):
         kwargs = {"path_or_hf_repo": MODEL_NAME}
         if language:
             kwargs["language"] = language
-        result = mlx_whisper.transcribe(tmp_path, **kwargs)
+
+        # Загружаем модель при первом вызове (кэшируется автоматически)
+        try:
+            result = mlx_whisper.transcribe(tmp_path, **kwargs)
+        except Exception as e:
+            print(f"❌ Ошибка: {e}", file=sys.stderr)
+            print(f"   Попробуйте загрузить модель вручную:", file=sys.stderr)
+            print(f"   python -c \"import mlx_whisper; mlx_whisper.transcribe('test.wav', path_or_hf_repo='{MODEL_NAME}')\"", file=sys.stderr)
+            return "", "error"
+
         text = result.get("text", "").strip()
         detected_lang = result.get("language", "?")
         return text, detected_lang

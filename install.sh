@@ -97,7 +97,7 @@ source .venv/bin/activate
 
 print_step "Установка Python пакетов..."
 pip install --quiet --upgrade pip
-pip install --quiet mlx-whisper sounddevice numpy
+pip install --quiet mlx-whisper pyaudio sounddevice numpy pyperclip
 
 print_success "Python пакеты установлены"
 
