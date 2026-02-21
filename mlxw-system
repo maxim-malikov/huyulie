@@ -1,0 +1,15 @@
+#!/bin/bash
+# mlxw-system — захват системного звука через BlackHole
+# Toggle-режим для транскрипции звонков, видео, и т.д.
+
+cd ~/mlxwhisper
+source .venv/bin/activate
+
+# Проверяем наличие BlackHole при первом запуске
+if [ "$1" = "setup" ]; then
+    python rt_system.py --setup
+    exit 0
+fi
+
+# Запускаем toggle режим с захватом системного звука
+python rt_system.py --lang "${1:-ru}"

@@ -1,4 +1,17 @@
 #!/bin/bash
 cd ~/mlxwhisper
 export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
-~/mlxwhisper/.venv/bin/python ~/mlxwhisper/rt_toggle.py --lang "${1:-ru}"
+
+# Проверяем наличие аргумента для выбора режима
+MODE="${1:-blackhole}"
+
+case "$MODE" in
+    mic|microphone)
+        # Режим микрофона (старый режим)
+        ~/mlxwhisper/.venv/bin/python ~/mlxwhisper/rt_toggle.py --lang "${2:-ru}"
+        ;;
+    *)
+        # По умолчанию - режим BlackHole для системного звука
+        ~/mlxwhisper/.venv/bin/python ~/mlxwhisper/rt_blackhole.py --lang "${1:-ru}"
+        ;;
+esac

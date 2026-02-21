@@ -6,16 +6,23 @@
 -- ===== НАСТРОЙКИ ГОРЯЧИХ КЛАВИШ =====
 -- Измените эти настройки на удобные вам сочетания клавиш
 local HOTKEYS = {
-    -- Быстрая диктовка (одна фраза)
+    -- Быстрая диктовка (одна фраза с микрофона)
     quickDictation = {
         modifiers = {"cmd", "shift"},  -- Модификаторы: cmd, shift, ctrl, alt, fn
         key = "D",                     -- Основная клавиша
         lang = "ru"                    -- Язык по умолчанию: ru, en или nil для автодетекта
     },
 
-    -- Toggle-режим (включение/выключение записи)
-    toggleDictation = {
+    -- Toggle-режим ОСНОВНОЙ (BlackHole - системный звук)
+    toggleMain = {
         modifiers = {"ctrl", "alt"},
+        key = "W",
+        lang = "ru"
+    },
+
+    -- Toggle-режим для МИКРОФОНА (резервный)
+    toggleMicrophone = {
+        modifiers = {"ctrl", "alt", "shift"},
         key = "W",
         lang = "ru"
     },
@@ -68,16 +75,16 @@ hs.hotkey.bind(HOTKEYS.quickDictation.modifiers, HOTKEYS.quickDictation.key, fun
 end)
 
 -- ═══════════════════════════════════════════════════════
--- 2. TOGGLE-РЕЖИМ (вкл/выкл записи)
+-- 2. TOGGLE-РЕЖИМ ОСНОВНОЙ (BlackHole)
 -- ═══════════════════════════════════════════════════════
-hs.hotkey.bind(HOTKEYS.toggleDictation.modifiers, HOTKEYS.toggleDictation.key, function()
+hs.hotkey.bind(HOTKEYS.toggleMain.modifiers, HOTKEYS.toggleMain.key, function()
 
     if not isRecording then
         -- ══ СТАРТ ЗАПИСИ ══
         isRecording = true
-        hs.alert.show("🔴 REC — говорите...", 1.5)
+        hs.alert.show("🔴 REC BlackHole (системный звук)...", 1.5)
 
-        local langArg = HOTKEYS.toggleDictation.lang or "ru"
+        local langArg = HOTKEYS.toggleMain.lang or "ru"
 
         mlxwTask = hs.task.new("/bin/bash", function(exitCode, stdOut, stdErr)
             -- Коллбэк: вызывается когда процесс завершился
@@ -100,6 +107,47 @@ hs.hotkey.bind(HOTKEYS.toggleDictation.modifiers, HOTKEYS.toggleDictation.key, f
         -- ══ СТОП ЗАПИСИ ══
         hs.alert.show("⏹ Стоп. Распознаю...", 2)
         -- Создать стоп-файл — скрипт увидит его и остановится
+        local f = io.open(STOP_FILE, "w")
+        if f then
+            f:write("stop")
+            f:close()
+        end
+    end
+end)
+
+-- ═══════════════════════════════════════════════════════
+-- 3. TOGGLE-РЕЖИМ МИКРОФОН (резервный)
+-- ═══════════════════════════════════════════════════════
+local isMicRecording = false
+local micTask = nil
+
+hs.hotkey.bind(HOTKEYS.toggleMicrophone.modifiers, HOTKEYS.toggleMicrophone.key, function()
+
+    if not isMicRecording then
+        -- ══ СТАРТ ЗАПИСИ ══
+        isMicRecording = true
+        hs.alert.show("🎤 REC Микрофон...", 1.5)
+
+        local langArg = HOTKEYS.toggleMicrophone.lang or "ru"
+
+        micTask = hs.task.new("/bin/bash", function(exitCode, stdOut, stdErr)
+            isMicRecording = false
+            micTask = nil
+
+            if exitCode == 0 and stdOut and #stdOut:gsub("%s+", "") > 0 then
+                local text = stdOut:gsub("%s+$", "")
+                hs.pasteboard.setContents(text)
+                local preview = #text > 80 and text:sub(1, 80) .. "…" or text
+                hs.alert.show("📋 " .. preview, 3)
+            else
+                hs.alert.show("❌ Не распознано", 2)
+            end
+        end, {"-c", MLXW_TOGGLE .. " mic " .. langArg})
+
+        micTask:start()
+    else
+        -- ══ СТОП ЗАПИСИ ══
+        hs.alert.show("⏹ Стоп микрофона. Распознаю...", 2)
         local f = io.open(STOP_FILE, "w")
         if f then
             f:write("stop")
@@ -158,6 +206,6 @@ local function formatHotkey(hotkey)
 end
 
 hs.alert.show("MLX Whisper готов\n" ..
-    "🎤 " .. formatHotkey(HOTKEYS.quickDictation) .. " — быстрая диктовка\n" ..
-    "🔴 " .. formatHotkey(HOTKEYS.toggleDictation) .. " — toggle-режим\n" ..
-    "🎙 " .. formatHotkey(HOTKEYS.continuousDictation) .. " — непрерывный", 3)
+    "🔴 " .. formatHotkey(HOTKEYS.toggleMain) .. " — BlackHole (системный звук)\n" ..
+    "🎤 " .. formatHotkey(HOTKEYS.toggleMicrophone) .. " — Микрофон (резервный)\n" ..
+    "💬 " .. formatHotkey(HOTKEYS.quickDictation) .. " — Быстрая диктовка", 3)
