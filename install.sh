@@ -107,11 +107,18 @@ print_success "Скрипты готовы к использованию"
 
 # Установка SoX для звуковых сигналов
 print_step "Установка SoX для звуковых сигналов..."
-if brew list sox &>/dev/null; then
+if command -v sox &> /dev/null; then
     print_success "SoX уже установлен"
 else
-    brew install sox --quiet
-    print_success "SoX установлен"
+    print_warning "Устанавливаю SoX (требуются права администратора)..."
+    brew install sox 2>/dev/null || {
+        print_warning "Не удалось установить SoX автоматически"
+        print_warning "Попробуйте установить вручную: brew install sox"
+        print_warning "SoX нужен только для звуковых сигналов (не критично)"
+    }
+    if command -v sox &> /dev/null; then
+        print_success "SoX установлен"
+    fi
 fi
 
 # Установка и настройка Hammerspoon
@@ -122,8 +129,14 @@ if [ -d "/Applications/Hammerspoon.app" ]; then
     print_success "Hammerspoon уже установлен"
 else
     print_step "Установка Hammerspoon..."
-    brew install --cask hammerspoon --quiet
-    print_success "Hammerspoon установлен"
+    brew install --cask hammerspoon 2>/dev/null || {
+        print_warning "Не удалось установить Hammerspoon автоматически"
+        print_warning "Установите вручную: brew install --cask hammerspoon"
+        print_warning "Или скачайте с https://www.hammerspoon.org"
+    }
+    if [ -d "/Applications/Hammerspoon.app" ]; then
+        print_success "Hammerspoon установлен"
+    fi
 fi
 
 # Создание директории конфигурации Hammerspoon если не существует
