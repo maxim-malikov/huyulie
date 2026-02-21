@@ -21,8 +21,8 @@
 
 ```bash
 # Клонирование репозитория
-git clone git@github.com:maxim-malikov/huyulie.git
-cd huyulie
+git clone git@github.com:maxim-malikov/huyulie.git mlxwhisper
+cd mlxwhisper
 
 # Создание виртуального окружения
 python3 -m venv .venv
@@ -31,8 +31,11 @@ source .venv/bin/activate
 # Установка зависимостей
 pip install mlx-whisper sounddevice numpy
 
-# Установка SoX для аудио-сигналов
+# Установка SoX для аудио-сигналов (для звуковых сигналов)
 brew install sox
+
+# Установка Hammerspoon (для горячих клавиш)
+brew install --cask hammerspoon
 
 # Делаем скрипты исполняемыми
 chmod +x mlxw mlxw-toggle
@@ -70,20 +73,59 @@ chmod +x mlxw mlxw-toggle
 - **Пробел** - начать/остановить запись
 - **q** - выйти из программы
 
-### Горячие клавиши (через Hammerspoon)
+## Настройка горячих клавиш через Hammerspoon
 
-Добавьте в `~/.hammerspoon/init.lua`:
+### Автоматическая настройка
+
+```bash
+# Копируем готовый конфиг
+cp hammerspoon/init.lua ~/.hammerspoon/init.lua
+
+# Перезагружаем Hammerspoon
+open -g hammerspoon://reload
+```
+
+### Горячие клавиши по умолчанию
+
+- **⌘ Cmd + ⇧ Shift + D** — Быстрая диктовка (одна фраза)
+- **⌃ Ctrl + ⌥ Alt + W** — Toggle-режим (вкл/выкл записи)
+- **⌘ Cmd + ⇧ Shift + C** — Непрерывный режим
+- **⌃ Ctrl + ⌥ Alt + R** — Перезагрузка конфига
+
+### Изменение горячих клавиш
+
+Откройте `~/.hammerspoon/init.lua` и найдите секцию `НАСТРОЙКИ ГОРЯЧИХ КЛАВИШ` в начале файла:
 
 ```lua
--- CMD+Shift+D - быстрая диктовка
-hs.hotkey.bind({"cmd", "shift"}, "D", function()
-  os.execute("/Users/ВАШ_ЮЗЕР/mlxwhisper/mlxw &")
-end)
+local HOTKEYS = {
+    -- Быстрая диктовка
+    quickDictation = {
+        modifiers = {"cmd", "shift"},  -- Измените модификаторы
+        key = "D",                     -- Измените клавишу
+        lang = "ru"                    -- ru, en или nil для автодетекта
+    },
+    -- ... другие настройки
+}
+```
 
--- CMD+Shift+T - toggle-режим
-hs.hotkey.bind({"cmd", "shift"}, "T", function()
-  os.execute("/Users/ВАШ_ЮЗЕР/mlxwhisper/mlxw-toggle &")
-end)
+**Доступные модификаторы:**
+- `"cmd"` — ⌘ Command
+- `"shift"` — ⇧ Shift
+- `"alt"` или `"option"` — ⌥ Option
+- `"ctrl"` — ⌃ Control
+- `"fn"` — Function
+
+После изменений нажмите **⌃ Ctrl + ⌥ Alt + R** для перезагрузки или выполните:
+```bash
+open -g hammerspoon://reload
+```
+
+### Если установили в другую директорию
+
+Измените путь в `~/.hammerspoon/init.lua`:
+
+```lua
+local MLXW_PATH = os.getenv("HOME") .. "/ваш_путь/mlxwhisper"
 ```
 
 ## Архитектура
