@@ -29,6 +29,14 @@ print_error() {
     echo -e "${RED}✗${NC} $1"
 }
 
+# Информирование пользователя
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}    MLX Whisper - Установка${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+echo -e "${YELLOW}⚠ Может потребоваться ввод пароля для установки приложений${NC}"
+echo ""
+
 # Проверка системы
 print_step "Проверка системы..."
 
@@ -110,14 +118,14 @@ print_step "Установка SoX для звуковых сигналов..."
 if command -v sox &> /dev/null; then
     print_success "SoX уже установлен"
 else
-    print_warning "Устанавливаю SoX (требуются права администратора)..."
-    brew install sox 2>/dev/null || {
-        print_warning "Не удалось установить SoX автоматически"
-        print_warning "Попробуйте установить вручную: brew install sox"
-        print_warning "SoX нужен только для звуковых сигналов (не критично)"
-    }
-    if command -v sox &> /dev/null; then
+    print_step "Устанавливаю SoX..."
+    brew install sox
+    if [ $? -eq 0 ]; then
         print_success "SoX установлен"
+    else
+        print_error "Ошибка установки SoX. Прерывание установки."
+        print_error "Попробуйте: brew update && brew install sox"
+        exit 1
     fi
 fi
 
@@ -128,14 +136,14 @@ print_step "Настройка горячих клавиш через Hammerspoo
 if [ -d "/Applications/Hammerspoon.app" ]; then
     print_success "Hammerspoon уже установлен"
 else
-    print_step "Установка Hammerspoon..."
-    brew install --cask hammerspoon 2>/dev/null || {
-        print_warning "Не удалось установить Hammerspoon автоматически"
-        print_warning "Установите вручную: brew install --cask hammerspoon"
-        print_warning "Или скачайте с https://www.hammerspoon.org"
-    }
-    if [ -d "/Applications/Hammerspoon.app" ]; then
+    print_step "Установка Hammerspoon (может потребоваться пароль)..."
+    brew install --cask hammerspoon
+    if [ $? -eq 0 ]; then
         print_success "Hammerspoon установлен"
+    else
+        print_error "Ошибка установки Hammerspoon. Прерывание установки."
+        print_error "Попробуйте: brew update && brew install --cask hammerspoon"
+        exit 1
     fi
 fi
 
