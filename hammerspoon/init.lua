@@ -78,9 +78,14 @@ end)
 -- 2. TOGGLE-РЕЖИМ ОСНОВНОЙ (BlackHole)
 -- ═══════════════════════════════════════════════════════
 hs.hotkey.bind(HOTKEYS.toggleMain.modifiers, HOTKEYS.toggleMain.key, function()
+    -- Debug log
+    print("Toggle pressed. isRecording =", isRecording)
 
     if not isRecording then
         -- ══ СТАРТ ЗАПИСИ ══
+        -- Очистка стоп-файла перед началом
+        os.remove(STOP_FILE)
+
         isRecording = true
         hs.alert.show("🔴 REC BlackHole (системный звук)...", 1.5)
 
@@ -88,6 +93,7 @@ hs.hotkey.bind(HOTKEYS.toggleMain.modifiers, HOTKEYS.toggleMain.key, function()
 
         mlxwTask = hs.task.new("/bin/bash", function(exitCode, stdOut, stdErr)
             -- Коллбэк: вызывается когда процесс завершился
+            print("Task finished. Exit code:", exitCode)
             isRecording = false
             mlxwTask = nil
 
@@ -100,17 +106,34 @@ hs.hotkey.bind(HOTKEYS.toggleMain.modifiers, HOTKEYS.toggleMain.key, function()
             else
                 hs.alert.show("❌ Не распознано", 2)
             end
+
+            -- Очистка файлов после завершения
+            os.remove(STOP_FILE)
+            os.remove(PID_FILE)
         end, {"-c", MLXW_TOGGLE .. " " .. langArg})
 
         mlxwTask:start()
+
+        -- Проверка что процесс запустился
+        if not mlxwTask:isRunning() then
+            print("Task failed to start!")
+            isRecording = false
+            mlxwTask = nil
+            hs.alert.show("❌ Ошибка запуска записи", 2)
+        end
     else
         -- ══ СТОП ЗАПИСИ ══
+        print("Stopping recording...")
         hs.alert.show("⏹ Стоп. Распознаю...", 2)
+
         -- Создать стоп-файл — скрипт увидит его и остановится
         local f = io.open(STOP_FILE, "w")
         if f then
             f:write("stop")
             f:close()
+            print("Stop file created")
+        else
+            print("Failed to create stop file!")
         end
     end
 end)
