@@ -174,9 +174,11 @@ def main():
     device_index, sample_rate = find_blackhole()
 
     if device_index is None:
+        print("\n❌ BlackHole не найден!", file=sys.stderr)
         print("\n⚠️  Установка BlackHole:", file=sys.stderr)
         print("1. brew install --cask blackhole-2ch", file=sys.stderr)
-        print("2. Перезапустите скрипт", file=sys.stderr)
+        print("2. sudo killall coreaudiod  (для активации без перезагрузки)", file=sys.stderr)
+        print("3. Перезапустите скрипт", file=sys.stderr)
         sys.exit(1)
 
     print("\n📌 Как использовать:", file=sys.stderr)

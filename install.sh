@@ -161,14 +161,18 @@ else
         print_success "BlackHole установлен"
         BLACKHOLE_INSTALLED=true
 
-        # Ждем пока драйвер загрузится
-        sleep 2
+        # Перезагружаем Core Audio для активации BlackHole
+        print_step "Активация BlackHole (требуется пароль)..."
+        sudo killall coreaudiod 2>/dev/null || true
+        sleep 3
 
         # Проверяем что BlackHole появился в системе
         if system_profiler SPAudioDataType | grep -q "BlackHole"; then
             print_success "BlackHole успешно загружен в систему"
         else
-            print_warning "BlackHole установлен, но может потребоваться перезагрузка"
+            print_warning "BlackHole установлен, но не активирован"
+            print_warning "Попробуйте выполнить: sudo killall coreaudiod"
+            print_warning "Или перезагрузите компьютер"
         fi
     else
         print_warning "Не удалось установить BlackHole автоматически"
