@@ -1,0 +1,22 @@
+#!/bin/bash
+# mlxw — быстрая голосовая диктовка в буфер обмена
+# Использование:
+#   mlxw            — одна фраза, автодетект языка
+#   mlxw ru         — одна фраза, русский
+#   mlxw en         — одна фраза, английский
+#   mlxw continuous — непрерывный режим
+
+cd ~/mlxwhisper
+source .venv/bin/activate
+
+case "${1:-}" in
+  continuous|cont|c)
+    python rt.py --lang "${2:-ru}"
+    ;;
+  "")
+    python rt.py --single
+    ;;
+  *)
+    python rt.py --single --lang "$1"
+    ;;
+esac

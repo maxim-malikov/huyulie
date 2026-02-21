@@ -1,0 +1,4 @@
+#!/bin/bash
+cd ~/mlxwhisper
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+~/mlxwhisper/.venv/bin/python ~/mlxwhisper/rt_toggle.py --lang "${1:-ru}"
